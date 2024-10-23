@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 import os
 
@@ -20,9 +20,14 @@ def vectordb(docs):
     chunks = splitter.split_documents(all_documents)
 
     embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
-    vector_database = Chroma.from_documents(
+    vector_database = FAISS.from_documents(
         chunks,
-        embeddings,
-        persist_directory="Vectordb"
+        embeddings
     )
     return vector_database
+
+
+input_file_path = "Pdf_files"
+v_database = vectordb(input_file_path)
+v_database.save_local("Vectordb")
+print("done")
